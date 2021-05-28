@@ -1,9 +1,15 @@
 import { SignUpController } from './signup';
 import { MissingParamError } from '../errors/missing-param-error';
 
+function sutFactory(): SignUpController {
+  const sut = new SignUpController();
+
+  return sut;
+}
+
 describe('SignUp Controller', () => {
   test('should return 400 if no name is provided', () => {
-    const sut = new SignUpController();
+    const sut = sutFactory();
     const httpRequest = {
       body: {
         email: 'any_email@mail.com',
@@ -18,7 +24,7 @@ describe('SignUp Controller', () => {
   });
 
   test('should return 400 if no email is provided', () => {
-    const sut = new SignUpController();
+    const sut = sutFactory();
     const httpRequest = {
       body: {
         name: 'any',
@@ -33,7 +39,7 @@ describe('SignUp Controller', () => {
   });
 
   test('should return 400 if no password is provided', () => {
-    const sut = new SignUpController();
+    const sut = sutFactory();
     const httpRequest = {
       body: {
         name: 'any',
@@ -48,7 +54,7 @@ describe('SignUp Controller', () => {
   });
 
   test('should return 400 if no passwordConfirmation is provided', () => {
-    const sut = new SignUpController();
+    const sut = sutFactory();
     const httpRequest = {
       body: {
         name: 'any',
