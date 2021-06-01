@@ -1,10 +1,13 @@
 /* eslint max-classes-per-file: ["error", 2] */
 import { SignUpController } from './signup';
-import { MissingParamError } from '../errors/missing-param-error';
-import { InvalidParamError } from '../errors/invalid-param-error';
-import { InternalServerError } from '../errors/internal-server-error';
+import { MissingParamError, InvalidParamError, InternalServerError } from '../errors';
 import { EmailValidator } from '../protocols/email-validator';
 
+class EmailValidatorWithErrorStub implements EmailValidator {
+  isValid(email: string): boolean { // eslint-disable-line
+    throw new Error();
+  }
+}
 class EmailValidatorStub implements EmailValidator {
   isValid(email: string): boolean { // eslint-disable-line
     return true;
@@ -126,13 +129,7 @@ describe('SignUp Controller', () => {
   });
 
   test('should return 500 when EmailValidator throws', () => {
-    class EmailValidatorWithError implements EmailValidator {
-      isValid(email: string): boolean { // eslint-disable-line
-        throw new Error();
-      }
-    }
-
-    const emailValidatorWithError = new EmailValidatorWithError();
+    const emailValidatorWithError = new EmailValidatorWithErrorStub();
     const sut = new SignUpController(emailValidatorWithError);
 
     const httpRequest = {
