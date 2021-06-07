@@ -13,16 +13,6 @@ const makeEmailValidator = (): EmailValidator => {
   return new EmailValidatorStub();
 };
 
-const makeEmailValidatorWithError = (): EmailValidator => {
-  class EmailValidatorWithErrorStub implements EmailValidator {
-    isValid(email: string): boolean { // eslint-disable-line
-      throw new Error();
-    }
-  }
-
-  return new EmailValidatorWithErrorStub();
-};
-
 interface MakeSutInterface {
   sut: SignUpController;
   emailValidator: EmailValidator
@@ -138,8 +128,11 @@ describe('SignUp Controller', () => {
   });
 
   test('should return 500 when EmailValidator throws', () => {
-    const emailValidatorWithError = makeEmailValidatorWithError();
-    const sut = new SignUpController(emailValidatorWithError);
+    const { sut, emailValidator } = makeSut();
+    // mudando o retorno da função mockada
+    jest
+      .spyOn(emailValidator, 'isValid')
+      .mockImplementationOnce(() => { throw new Error(); });
 
     const httpRequest = {
       body: {
