@@ -3,12 +3,16 @@ import { BadRequest, ServerError } from '../helpers/http-helper';
 import { HttpRequest, HttpResponse } from '../protocols/http';
 import { ControllerHttp } from '../protocols/controller-http';
 import { EmailValidator } from '../protocols/email-validator';
+import { AddAccount } from '../../domain/usecases/add-account';
 
 export class SignUpController implements ControllerHttp {
   private readonly emailValidator;
 
-  constructor(emailValidator: EmailValidator) {
+  private readonly addAccount;
+
+  constructor(emailValidator: EmailValidator, addAccount: AddAccount) {
     this.emailValidator = emailValidator;
+    this.addAccount = addAccount;
   }
 
   handle(httpRequest: HttpRequest): HttpResponse {
@@ -21,7 +25,12 @@ export class SignUpController implements ControllerHttp {
         }
       }
 
-      const { email, password, passwordConfirmation } = httpRequest.body;
+      const {
+        email,
+        password,
+        passwordConfirmation,
+        name,
+      } = httpRequest.body;
 
       const isValidEmail = this.emailValidator.isValid(email);
 
@@ -32,6 +41,12 @@ export class SignUpController implements ControllerHttp {
       if (password !== passwordConfirmation) {
         return BadRequest(new InvalidParamError('passwordConfirmation'));
       }
+
+      this.addAccount.add({
+        name,
+        email,
+        password,
+      });
 
       return {
         statusCode: 200,
