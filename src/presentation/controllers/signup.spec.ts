@@ -127,6 +127,23 @@ describe('SignUp Controller', () => {
     expect(emailValidatorSpy).toHaveBeenCalledWith(httpRequest.body.email);
   });
 
+  test('should return 400 if password confirmation fails', () => {
+    const { sut } = makeSut();
+
+    const httpRequest = {
+      body: {
+        name: 'any',
+        email: 'any_email@mail.com',
+        password: 'any_password',
+        passwordConfirmation: 'any_password_12',
+      },
+    };
+
+    const httpResponse = sut.handle(httpRequest);
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body).toEqual(new InvalidParamError('passwordConfirmation'));
+  });
+
   test('should return 500 when EmailValidator throws', () => {
     const { sut, emailValidator } = makeSut();
     // mudando o retorno da função mockada
