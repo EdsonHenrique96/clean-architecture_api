@@ -1,7 +1,9 @@
-/* eslint max-classes-per-file: ["error", 2] */
+/* eslint max-classes-per-file: ["error", 3] */
 import { SignUpController } from './signup';
 import { MissingParamError, InvalidParamError, InternalServerError } from '../errors';
 import { EmailValidator } from '../protocols/email-validator';
+import { AddAccount, AddAccountDTO } from '../../domain/usecases/add-account';
+import { AccountModel } from '../../domain/models/account';
 
 const makeEmailValidator = (): EmailValidator => {
   class EmailValidatorStub implements EmailValidator {
@@ -13,18 +15,36 @@ const makeEmailValidator = (): EmailValidator => {
   return new EmailValidatorStub();
 };
 
+const makeAddAccount = ():AddAccount => {
+  class AddAccountStub implements AddAccount {
+    add(account: AddAccountDTO): AccountModel { // eslint-disable-line
+      return {
+        id: 'valid_id',
+        name: 'valid_name',
+        email: 'valid_email@email.com',
+        password: 'valid_password',
+      };
+    }
+  }
+
+  return new AddAccountStub();
+};
+
 interface MakeSutInterface {
   sut: SignUpController;
   emailValidator: EmailValidator
+  addAccount: AddAccount
 }
 
 function makeSut(): MakeSutInterface {
   const emailValidator = makeEmailValidator();
-  const sut = new SignUpController(emailValidator);
+  const addAccount = makeAddAccount();
+  const sut = new SignUpController(emailValidator, addAccount);
 
   return {
     sut,
     emailValidator,
+    addAccount,
   };
 }
 
@@ -163,5 +183,27 @@ describe('SignUp Controller', () => {
     const httpResponse = sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(500);
     expect(httpResponse.body).toEqual(new InternalServerError());
+  });
+
+  test('Should calls addAccount with correct params', () => {
+    const { sut, addAccount } = makeSut();
+
+    const addSpy = jest.spyOn(addAccount, 'add');
+
+    const httpRequest = {
+      body: {
+        name: 'valid_name',
+        email: 'valid_email@mail.com',
+        password: 'valid_password',
+        passwordConfirmation: 'valid_password',
+      },
+    };
+
+    sut.handle(httpRequest);
+    expect(addSpy).toHaveBeenCalledWith({
+      name: 'valid_name',
+      email: 'valid_email@mail.com',
+      password: 'valid_password',
+    });
   });
 });
