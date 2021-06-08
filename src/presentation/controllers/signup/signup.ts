@@ -4,18 +4,20 @@ import { HttpRequest, HttpResponse } from '../../protocols/http';
 import { ControllerHttp } from '../../protocols/controller-http';
 import { EmailValidator } from '../../protocols/email-validator';
 import { AddAccount } from '../../../domain/usecases/add-account';
+import { AccountModel } from '../../../domain/models/account';
 
 export class SignUpController implements ControllerHttp {
-  private readonly emailValidator;
+  private readonly emailValidator: EmailValidator;
 
-  private readonly addAccount;
+  private readonly addAccount: AddAccount;
 
   constructor(emailValidator: EmailValidator, addAccount: AddAccount) {
     this.emailValidator = emailValidator;
     this.addAccount = addAccount;
   }
 
-  handle(httpRequest: HttpRequest): HttpResponse {
+  handle(httpRequest: HttpRequest)
+    : HttpResponse<AccountModel | Error> {
     try {
       const requiredFields = ['name', 'email', 'password', 'passwordConfirmation'];
 
