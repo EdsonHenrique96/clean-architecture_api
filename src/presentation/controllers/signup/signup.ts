@@ -6,7 +6,7 @@ import { EmailValidator } from '../../protocols/email-validator';
 import { AddAccount } from '../../../domain/usecases/add-account';
 import { AccountModel } from '../../../domain/models/account';
 
-export class SignUpController implements ControllerHttp {
+export class SignUpController implements ControllerHttp<AccountModel> {
   private readonly emailValidator: EmailValidator;
 
   private readonly addAccount: AddAccount;
