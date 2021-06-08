@@ -21,7 +21,7 @@ const makeAddAccount = ():AddAccount => {
       return {
         id: 'valid_id',
         name: 'valid_name',
-        email: 'valid_email@email.com',
+        email: 'valid_email@mail.com',
         password: 'valid_password',
       };
     }
@@ -201,6 +201,49 @@ describe('SignUp Controller', () => {
 
     sut.handle(httpRequest);
     expect(addSpy).toHaveBeenCalledWith({
+      name: 'valid_name',
+      email: 'valid_email@mail.com',
+      password: 'valid_password',
+    });
+  });
+
+  test('should return 500 when AddAccount throws', () => {
+    const { sut, addAccount } = makeSut();
+    // mudando o retorno da função mockada
+    jest
+      .spyOn(addAccount, 'add')
+      .mockImplementationOnce(() => { throw new Error(); });
+
+    const httpRequest = {
+      body: {
+        name: 'any',
+        email: 'invalid@mail.com',
+        password: 'any_password',
+        passwordConfirmation: 'any_password',
+      },
+    };
+
+    const httpResponse = sut.handle(httpRequest);
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body).toEqual(new InternalServerError());
+  });
+
+  test('should return 200 when AddAccount was successful', () => {
+    const { sut } = makeSut();
+
+    const httpRequest = {
+      body: {
+        name: 'valid',
+        email: 'valid_email@mail.com',
+        password: 'valid_password',
+        passwordConfirmation: 'valid_password',
+      },
+    };
+
+    const httpResponse = sut.handle(httpRequest);
+    expect(httpResponse.statusCode).toBe(200);
+    expect(httpResponse.body).toEqual({
+      id: 'valid_id',
       name: 'valid_name',
       email: 'valid_email@mail.com',
       password: 'valid_password',
