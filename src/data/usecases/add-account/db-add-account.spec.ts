@@ -1,5 +1,5 @@
 import { DbAddAccount } from './db-add-account';
-import { Encrypter } from './protocols/encrypter';
+import { Encrypter } from '../../protocols/encrypter';
 
 interface MakeSutTypes {
   sut: DbAddAccount
@@ -50,5 +50,8 @@ describe('UseCase DbAddAccount', () => {
     });
 
     await expect(resultPromise).rejects.toThrow();
+  });
+
+  test('Should call AddAccountRepository with correct values', () => {
   });
 });
