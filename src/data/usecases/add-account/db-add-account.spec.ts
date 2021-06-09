@@ -101,5 +101,15 @@ describe('UseCase DbAddAccount', () => {
   });
 
   test('Should return an Account with hashed password on success', async () => {
+    const { sut } = makeSut();
+
+    const accountData = {
+      name: 'valid_name',
+      email: 'valid_email@mail.com',
+      password: 'valid_password',
+    };
+
+    const result = await sut.add(accountData);
+    expect(result).toEqual({ ...accountData, password: 'hashed_password', id: 'valid_id' });
   });
 });
